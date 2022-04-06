@@ -6,13 +6,17 @@ resource "aws_vpc" "VPC-CLASES" {
     }      
 }
 
-
+#-----------------------------------------------------------
+#INTERNET GATEWAY
 
 resource "aws_internet_gateway" "INTERNET-GW-CLASES" {
     vpc_id = aws_vpc.VPC-CLASES.id  
 }
 
 
+
+#-----------------------------------------------------------
+#SUBREDES, 2 PUBLICAS, 2 PRIVADAS
 
 resource "aws_subnet" "SUBNET-PUBLIC" {
 
@@ -63,6 +67,9 @@ resource "aws_subnet" "SUBNET-PRIVATE-B" {
 }
 
 
+#-----------------------------------------------------------
+#TABLAS DE RUTEO Y ASOCIACIONES ENTRE LAS SUBERED Y LAS TABLAS DE RUTEO
+
 
 resource "aws_route_table" "ROUTES-PUBLIC" {
     vpc_id = aws_vpc.VPC-CLASES.id
@@ -105,7 +112,8 @@ resource "aws_route_table_association" "ROUTES-SUBNETS-ASSOCIATION-B" {
 
 
 
-
+#-----------------------------------------------------------
+# ELASTIC IP PARA NAT GATEWAY
 
 resource "aws_eip" "EIP-NAT-GW" {
     vpc = true
@@ -124,7 +132,8 @@ resource "aws_nat_gateway" "NAT-GW-CLASES" {
     }
 }
 
-
+#-------------------------------------------------------------------------------------------
+# TABLAS DE RUTAS DE SUBREDES PRIVADAS Y ASOCIACION ENTRE LAS TABLAS DE RUTAS Y LAS SUBREDES
 
 resource "aws_route_table" "ROUTES-PRIVATE-A" {
       vpc_id = aws_vpc.VPC-CLASES.id
@@ -163,7 +172,8 @@ resource "aws_route_table_association" "ROUTES-SUBNETS-PRIVATE-ASSOCIATION-B" {
     route_table_id = aws_route_table.ROUTES-PRIVATE-B.id  
 }
 
-
+#-----------------------------------------------------------
+# SECURITY GROUPS PARA INSTANCIA DE EC2
 
 resource "aws_security_group" "SG-LINUX" {
     name = "Allow_Traffic"
@@ -207,6 +217,8 @@ resource "aws_security_group" "SG-LINUX" {
 }
 
 
+#-----------------------------------------------------------
+# TARGETAS DE RED VIRTUALES PARA INSTANCIAS DE EC2
 
 resource "aws_network_interface" "NIC-LINUX" {
     subnet_id = aws_subnet.SUBNET-PUBLIC.id
@@ -229,7 +241,8 @@ resource "aws_network_interface" "NIC-LINUX-PRIVATE-B" {
 
 
 
-
+#-----------------------------------------------------------
+# ELASTIC IP ASOCIADA A INTERFAZ DE RED DE INSTANCIA EC2 CON IP PRIVADA 
 
 resource "aws_eip" "EIP-LINUX" {
     vpc = true
@@ -247,6 +260,12 @@ output "SERVER-PUBLIC-IP" {
     value = aws_eip.EIP-LINUX   
 }
 
+#-----------------------------------------------------------
+# INSTANCIAS EC2
+
+#-----------------------------------------------------------
+# INSTANCIA EC2 EN SUBRED PUBLICA QUE NOS PERMITE CONECTARNOS A LAS 
+# INSTANCIAS EC2 EN SUBREDES PRIVADAS
 
 resource "aws_instance" "EC2-LINUX" {
     ami = "ami-0c02fb55956c7d316"
@@ -265,6 +284,8 @@ resource "aws_instance" "EC2-LINUX" {
      
 }
 
+#-----------------------------------------------------------
+# PRIMERA INSTANCIA EC2 CON WORDPRESS INSTALADO 
 
 resource "aws_instance" "EC2-LINUX-PRIVATE-A" {
     ami = "ami-04c30646bdedddea5"
@@ -287,6 +308,9 @@ resource "aws_instance" "EC2-LINUX-PRIVATE-A" {
       "Name" = "EC2-LINUX-PRIVATE-A"
     }     
 }
+
+#-----------------------------------------------------------
+# SEGUNDA INSTANCIA EC2 CON WORDPRESS INSTALADO
 
 resource "aws_instance" "EC2-LINUX-PRIVATE-B" {
     ami = "ami-04c30646bdedddea5"
@@ -326,7 +350,8 @@ output "server_id" {
 
 
 
-
+#-----------------------------------------------------------
+# SECURITY GROUP PARA LOAD BALANCER
 
 resource "aws_security_group" "SG-LOADBALANCER" {
     name = "Allow_Traffic_LB"
@@ -355,7 +380,8 @@ resource "aws_security_group" "SG-LOADBALANCER" {
 
 
 
-
+#-----------------------------------------------------------
+# LOAD BALANCER
 
 resource "aws_lb" "LOADBALANCER-CLASES" {
   name = "LOADBALANCER-CLASES"
@@ -372,6 +398,8 @@ resource "aws_lb" "LOADBALANCER-CLASES" {
   
 }
 
+#-----------------------------------------------------------
+# TARGET GROUP PARA LOAD BALANCER
 
 resource "aws_lb_target_group" "TARGET-GROUP-LB" {
   name = "TARGET-GROUP-LB"
@@ -389,6 +417,9 @@ resource "aws_lb_target_group" "TARGET-GROUP-LB" {
     interval = 10    
   }  
 }
+
+#-----------------------------------------------------------
+# LISTENERS DE LOAD BALANCER
 
 resource "aws_lb_listener" "LISTENER-WEB-CLASES" {
   load_balancer_arn = aws_lb.LOADBALANCER-CLASES.arn
