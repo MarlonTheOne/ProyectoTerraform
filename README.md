@@ -8,3 +8,7 @@
 
 
 ### - El CIDR DE LA VPC ES "192.168.0.0/16", por lo que las subredes creadas fueron números secuentes del tercer octeto (0,1,2,3)
+
+# Integrantes:
+## Marlon Alberto Ochoa García
+## Fernando Raul Cortez Rodríguez
