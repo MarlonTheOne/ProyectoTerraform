@@ -11,4 +11,3 @@
 
 # Integrantes:
 ## Marlon Alberto Ochoa García
-## Fernando Raúl Cortés Rodríguez
